@@ -73,17 +73,6 @@
             }
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         h1 {
             color: #ffe4f6;
             font-size: 2.6em;
@@ -129,7 +118,7 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 10px;
-            position:relative;
+            position: relative;
         }
 
         button {
@@ -213,21 +202,6 @@
             }
         }
 
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            animation: confettiFall 3s linear forwards;
-            display: none;
-        }
-
-        @keyframes confettiFall {
-            to {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
         /* Sparkle effect */
         .sparkle {
             position: absolute;
@@ -250,14 +224,35 @@
             }
         }
 
+        /* YES cloud over the page */
+        #yesCloud {
+            position: absolute;
+            inset: 0;
+            pointer-events: none; /* only buttons intercept clicks */
+        }
+
+        .floating-yes {
+            position: absolute;
+            padding: 10px 28px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #ff6fb1 0%, #ff3e9d 45%, #ffcf71 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            cursor: pointer;
+            pointer-events: auto;
+            border: none;
+        }
+
         /* Success page container */
         .yes-page {
             display: none;
             text-align: center;
             min-height: 100vh;
             width: 100%;
-            align-items: center;      /* vertical center */
-            justify-content: center;  /* horizontal center */
+            align-items: center;
+            justify-content: center;
         }
 
         .success-container {
@@ -379,6 +374,9 @@
         <button class="restart-btn" onclick="restartPage()" id="restartBtn">Ask Again</button>
     </div>
 
+    <!-- Floating YES buttons layer -->
+    <div id="yesCloud"></div>
+
     <div class="yes-page" id="yesPage">
         <div class="success-container">
             <div class="dancing-emoji" id="danceEmoji">💃🕺</div>
@@ -420,21 +418,22 @@
         ];
 
         function pressNo() {
-            const buttonsContainer = document.getElementById('buttons');
             noCount++;
 
-            // How many new YES buttons to add this time
-            const newYesButtons = Math.min(3, noCount);  // grows a bit each click
+            const messageEl = document.getElementById('message');
+            const intensityEl = document.getElementById('intensityLevel');
+            const idx = Math.min(noCount - 1, noMessages.length - 1);
+            messageEl.textContent = noMessages[idx];
+            intensityEl.textContent = `Desperation Level: ${noCount}/20`;
 
-            for (let i = 0; i < newYesButtons; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'yes-btn';
-                btn.textContent = 'YES';
-                btn.onclick = pressYes;   // every YES works
-                buttonsContainer.appendChild(btn);
-            }
+            const container = document.querySelector('.container');
+            container.style.animation = 'none';
+            setTimeout(() => {
+                container.style.animation = `shake 0.3s ease-in-out`;
+            }, 10);
 
-            // Optional: once she’s clicked NO a lot, shrink / dim the NO button
+            spawnYesButtons(noCount + 2);
+
             if (noCount > 4) {
                 const noBtn = document.querySelector('.no-btn');
                 noBtn.style.transform = 'scale(0.8)';
@@ -442,15 +441,37 @@
             }
         }
 
+        function spawnYesButtons(count) {
+            const cloud = document.getElementById('yesCloud');
+            const card = document.querySelector('.container');
+            const rect = card.getBoundingClientRect();
+
+            for (let i = 0; i < count; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'floating-yes';
+                btn.textContent = 'YES';
+                btn.onclick = pressYes;
+
+                const btnWidth = 140;
+                const btnHeight = 50;
+
+                const x = rect.left + Math.random() * (rect.width - btnWidth);
+                const y = rect.top + Math.random() * (rect.height - btnHeight);
+
+                btn.style.left = `${x}px`;
+                btn.style.top = `${y}px`;
+
+                cloud.appendChild(btn);
+            }
+        }
+
         function pressYes() {
-            // Hide original card
             document.querySelector('.container').style.display = 'none';
-            
-            // Show YES page with GIF
+            document.getElementById('yesCloud').style.display = 'none';
+
             const yesPage = document.getElementById('yesPage');
-            yesPage.style.display = 'flex';   // show only now
-            
-            // Create celebration effects
+            yesPage.style.display = 'flex';
+
             createFlowers();
             createSparkles();
             playCelebrationAudio();
@@ -459,7 +480,8 @@
         function createFlowers() {
             const celebration = document.getElementById('celebration');
             const flowers = ['🌹', '🌺', '🌻', '🌷', '💐', '🌸'];
-            
+            celebration.style.display = 'block';
+
             for (let i = 0; i < 30; i++) {
                 const flower = document.createElement('div');
                 flower.className = 'flower';
@@ -467,17 +489,15 @@
                 flower.style.left = Math.random() * 100 + '%';
                 flower.style.top = -120 + 'px';
                 flower.style.animation = `fall ${3.5 + Math.random() * 1.5}s linear forwards`;
-                flower.style.delay = i * 0.1 + 's';
                 celebration.appendChild(flower);
-                
-                // Remove element after animation
+
                 setTimeout(() => flower.remove(), 5500);
             }
         }
 
         function createSparkles() {
             const celebration = document.getElementById('celebration');
-            
+
             for (let i = 0; i < 60; i++) {
                 const sparkle = document.createElement('div');
                 sparkle.className = 'sparkle';
@@ -485,25 +505,22 @@
                 sparkle.style.top = Math.random() * 50 + '%';
                 sparkle.style.animation = `sparkleFloat ${2 + Math.random() * 1}s ease-out forwards`;
                 celebration.appendChild(sparkle);
-                
-                // Remove element after animation
+
                 setTimeout(() => sparkle.remove(), 3500);
             }
         }
 
         function playCelebrationAudio() {
-        const audio = document.getElementById('yesAudio');
-        if (!audio) return;
-        audio.currentTime = 0;  // restart from beginning
-        audio.play();
-    }
-
+            const audio = document.getElementById('yesAudio');
+            if (!audio) return;
+            audio.currentTime = 0;
+            audio.play();
+        }
 
         function restartPage() {
             location.reload();
         }
 
-        // Add shake animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes shake {
@@ -514,6 +531,7 @@
         `;
         document.head.appendChild(style);
     </script>
+
     <audio id="yesAudio">
         <source src="audio/yes-song.mp3" type="audio/mpeg">
     </audio>
