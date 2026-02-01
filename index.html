@@ -441,7 +441,8 @@
             document.querySelector('.container').style.display = 'none';
             
             // Show YES page with GIF
-            document.getElementById('yesPage').style.display = 'flex';
+            const yesPage = document.getElementById('yesPage');
+            yesPage.style.display = 'flex';   // show only now
             
             // Create celebration effects
             createFlowers();
