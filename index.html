@@ -23,7 +23,6 @@
             position: relative;
         }
 
-        /* floating hearts in background */
         .bg-heart {
             position: fixed;
             font-size: 2.5rem;
@@ -202,7 +201,6 @@
             }
         }
 
-        /* Sparkle effect */
         .sparkle {
             position: absolute;
             width: 12px;
@@ -224,11 +222,11 @@
             }
         }
 
-        /* YES cloud over the page */
+        /* YES cloud sits on top of the card */
         #yesCloud {
             position: absolute;
             inset: 0;
-            pointer-events: none; /* only buttons intercept clicks */
+            pointer-events: none;
         }
 
         .floating-yes {
@@ -245,7 +243,6 @@
             border: none;
         }
 
-        /* Success page container */
         .yes-page {
             display: none;
             text-align: center;
@@ -372,10 +369,10 @@
             I love you! You've made me the happiest person. ❤️💕<br>
         </div>
         <button class="restart-btn" onclick="restartPage()" id="restartBtn">Ask Again</button>
-    </div>
 
-    <!-- Floating YES buttons layer -->
-    <div id="yesCloud"></div>
+        <!-- Floating YES buttons layer ON TOP OF THE CARD -->
+        <div id="yesCloud"></div>
+    </div>
 
     <div class="yes-page" id="yesPage">
         <div class="success-container">
@@ -443,8 +440,7 @@
 
         function spawnYesButtons(count) {
             const cloud = document.getElementById('yesCloud');
-            const card = document.querySelector('.container');
-            const rect = card.getBoundingClientRect();
+            const rect = cloud.getBoundingClientRect();
 
             for (let i = 0; i < count; i++) {
                 const btn = document.createElement('button');
@@ -455,8 +451,8 @@
                 const btnWidth = 140;
                 const btnHeight = 50;
 
-                const x = rect.left + Math.random() * (rect.width - btnWidth);
-                const y = rect.top + Math.random() * (rect.height - btnHeight);
+                const x = Math.random() * (rect.width - btnWidth);
+                const y = Math.random() * (rect.height - btnHeight);
 
                 btn.style.left = `${x}px`;
                 btn.style.top = `${y}px`;
