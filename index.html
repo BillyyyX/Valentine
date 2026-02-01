@@ -129,6 +129,7 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 10px;
+            position:relative;
         }
 
         button {
@@ -146,6 +147,7 @@
             background: linear-gradient(135deg, #ff6fb1 0%, #ff3e9d 45%, #ffcf71 100%);
             color: #fff;
             padding: 14px 70px;
+            z-index: 2;
         }
 
         .yes-btn:hover {
@@ -161,6 +163,8 @@
             background: rgba(255, 255, 255, 0.12);
             color: #ffe4ff;
             border: 1px solid rgba(255, 255, 255, 0.35);
+            z-index: 1;
+            position: relative;
         }
 
         .no-btn:hover {
@@ -416,22 +420,26 @@
         ];
 
         function pressNo() {
-            const messageEl = document.getElementById('message');
-            const intensityEl = document.getElementById('intensityLevel');
-            
-            const messageIndex = Math.min(noCount, noMessages.length - 1);
-            messageEl.textContent = noMessages[messageIndex];
-            
-            intensityEl.textContent = `Desperation Level: ${noCount + 1}/20`;
-            
-            // Slight shake animation for intensity
-            const container = document.querySelector('.container');
-            container.style.animation = 'none';
-            setTimeout(() => {
-                container.style.animation = `shake 0.3s ease-in-out`;
-            }, 10);
-            
+            const buttonsContainer = document.getElementById('buttons');
             noCount++;
+
+            // How many new YES buttons to add this time
+            const newYesButtons = Math.min(3, noCount);  // grows a bit each click
+
+            for (let i = 0; i < newYesButtons; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'yes-btn';
+                btn.textContent = 'YES';
+                btn.onclick = pressYes;   // every YES works
+                buttonsContainer.appendChild(btn);
+            }
+
+            // Optional: once she’s clicked NO a lot, shrink / dim the NO button
+            if (noCount > 4) {
+                const noBtn = document.querySelector('.no-btn');
+                noBtn.style.transform = 'scale(0.8)';
+                noBtn.style.opacity = '0.4';
+            }
         }
 
         function pressYes() {
